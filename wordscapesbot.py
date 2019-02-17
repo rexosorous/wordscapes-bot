@@ -1,10 +1,12 @@
 import pyautogui
+from time import sleep
 from itertools import permutations
 from pynput.keyboard import Key, Listener
 from collections import Counter
 import threading
 import os
 import json
+import cv2
 import pytesseract
 pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files (x86)/Tesseract-OCR/tesseract.exe'
 
@@ -16,19 +18,19 @@ class OCR_Error(Exception):
 
 
 # middle
-COL1 = 175
-COL2 = 285
-COL3 = 390
+COL1 = 176
+COL2 = 284
+COL3 = 393
 
-ROW1 = 585
-ROW2 = 645
-ROW3 = 775
-ROW4 = 835
+ROW1 = 584
+ROW2 = 647
+ROW3 = 772
+ROW4 = 836
 
 
 # image sizes
 WIDTH = 70
-HEIGHT = 70
+HEIGHT = 66
 
 
 def move1():
@@ -74,13 +76,26 @@ with open('words_dictionary.json') as file:
 
 
 def start_level():
-    pos1 = pyautogui.screenshot('images/pos1.png', region=(COL2 - int(WIDTH / 2), ROW1 - int(HEIGHT / 2), WIDTH, HEIGHT))
-    pos2 = pyautogui.screenshot('images/pos2.png', region=(COL3 - int(WIDTH / 2), ROW2 - int(HEIGHT / 2), WIDTH, HEIGHT))
-    pos3 = pyautogui.screenshot('images/pos3.png', region=(COL3 - int(WIDTH / 2), ROW3 - int(HEIGHT / 2), WIDTH, HEIGHT))
-    pos4 = pyautogui.screenshot('images/pos4.png', region=(COL2 - int(WIDTH / 2), ROW4 - int(HEIGHT / 2), WIDTH, HEIGHT))
-    pos5 = pyautogui.screenshot('images/pos5.png', region=(COL1 - int(WIDTH / 2), ROW3 - int(HEIGHT / 2), WIDTH, HEIGHT))
-    pos6 = pyautogui.screenshot('images/pos6.png', region=(COL1 - int(WIDTH / 2), ROW2 - int(HEIGHT / 2), WIDTH, HEIGHT))
+    pyautogui.screenshot('images/pos1.png', region=(COL2 - int(WIDTH / 2), ROW1 - int(HEIGHT / 2), WIDTH, HEIGHT))
+    pyautogui.screenshot('images/pos2.png', region=(COL3 - int(WIDTH / 2), ROW2 - int(HEIGHT / 2), WIDTH, HEIGHT))
+    pyautogui.screenshot('images/pos3.png', region=(COL3 - int(WIDTH / 2), ROW3 - int(HEIGHT / 2), WIDTH, HEIGHT))
+    pyautogui.screenshot('images/pos4.png', region=(COL2 - int(WIDTH / 2), ROW4 - int(HEIGHT / 2), WIDTH, HEIGHT))
+    pyautogui.screenshot('images/pos5.png', region=(COL1 - int(WIDTH / 2), ROW3 - int(HEIGHT / 2), WIDTH, HEIGHT))
+    pyautogui.screenshot('images/pos6.png', region=(COL1 - int(WIDTH / 2), ROW2 - int(HEIGHT / 2), WIDTH, HEIGHT))
 
+    pos1 = cv2.cvtColor(cv2.imread('images/pos1.png'), cv2.COLOR_BGR2GRAY)
+    pos2 = cv2.cvtColor(cv2.imread('images/pos2.png'), cv2.COLOR_BGR2GRAY)
+    pos3 = cv2.cvtColor(cv2.imread('images/pos3.png'), cv2.COLOR_BGR2GRAY)
+    pos4 = cv2.cvtColor(cv2.imread('images/pos4.png'), cv2.COLOR_BGR2GRAY)
+    pos5 = cv2.cvtColor(cv2.imread('images/pos5.png'), cv2.COLOR_BGR2GRAY)
+    pos6 = cv2.cvtColor(cv2.imread('images/pos6.png'), cv2.COLOR_BGR2GRAY)
+
+    cv2.imwrite('images/pos1.png', pos1)
+    cv2.imwrite('images/pos2.png', pos2)
+    cv2.imwrite('images/pos3.png', pos3)
+    cv2.imwrite('images/pos4.png', pos4)
+    cv2.imwrite('images/pos5.png', pos5)
+    cv2.imwrite('images/pos6.png', pos6)
 
     char_pos = [[pytesseract.image_to_string(pos1, config='--psm 10'), 1],
     [pytesseract.image_to_string(pos2, config='--psm 10'), 2],
@@ -90,15 +105,15 @@ def start_level():
     [pytesseract.image_to_string(pos6, config='--psm 10'), 6]]
 
 
-    for char in [x[0] for x in char_pos]:
-        if len(char) > 1:
-            raise OCR_Error
+    print([x[0] for x in char_pos])
 
     for x in char_pos:
+        x[0] = x[0].upper()
         if x[0] == '|':
             x[0] = 'I'
         if len(x[0]) > 1:
             raise OCR_Error
+
 
     bruteforce(char_pos)
 
@@ -110,7 +125,10 @@ def bruteforce(char_pos: dict):
     fives = list(map(''.join, permutations([char[0] for char in char_pos], 5)))
     sixes = list(map(''.join, permutations([char[0] for char in char_pos], 6)))
 
-    allcombos = [word for word in threes + fours + fives + sixes if word in dictionary]
+    if pyautogui.pixel(80, 867)[0] > 245 and pyautogui.pixel(80, 867)[0] < 258:
+        allcombos = [word for word in fours + fives + sixes if word in dictionary]
+    else:
+        allcombos = [word for word in threes + fours + fives + sixes if word in dictionary]
 
     for combo in allcombos:
         dupes = [k for k,v in Counter(combo).items() if v>1]
@@ -131,10 +149,33 @@ def bruteforce(char_pos: dict):
 
 
 
+def next_level():
+    level_text = ''
+    while 'LEVEL' not in level_text and 'COLLECT' not in level_text:
+        pyautogui.screenshot('images/next_level.png', region=(200, 700, 150, 50))
+        level_img = cv2.cvtColor(cv2.imread('images/next_level.png'), cv2.COLOR_BGR2GRAY)
+        cv2.imwrite('images/next_level.png', level_img)
+        level_text = pytesseract.image_to_string(level_img).upper()
+    if 'LEVEL' in level_text:
+        print (level_text)
+        pyautogui.click(250, 725)
+        sleep(1)
+    elif 'COLLECT' in level_text:
+        pyautogui.press('esc')
+        sleep(3)
+        pyautogui.press('esc')
+        sleep(1)
+        pyautogui.click(295, 290)
+        sleep(1)
+
+
+
+
+
 
 def stop(key):
-    if key == Key.esc:
-        print('stopped')
+    if key == Key.space:
+        print('manual stop')
         os._exit(1)
 
 
@@ -149,5 +190,6 @@ listen_thread.start()
 
 
 
-
-start_level()
+while True:
+    start_level()
+    next_level()
