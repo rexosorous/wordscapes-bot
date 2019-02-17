@@ -188,27 +188,30 @@ def bruteforce(char_pos: dict):
 
 
 def next_level():
-    sleep(20)
+    seconds = 0
+    while seconds < 20
+        sleep(1)
+        pyautogui.screenshot('images/next_level.png', region=(200, 719, 180, 40))
+        # level_img = cv2.cvtColor(cv2.imread('images/next_level.png'), cv2.COLOR_BGR2GRAY)
+        # level_img = cv2.threshold(level_img, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+        # cv2.imwrite('images/next_level.png', level_img)
+        level_text = pytesseract.image_to_string('images/next_level.png').upper()
 
-    pyautogui.screenshot('images/next_level.png', region=(200, 719, 180, 40))
-    # level_img = cv2.cvtColor(cv2.imread('images/next_level.png'), cv2.COLOR_BGR2GRAY)
-    # level_img = cv2.threshold(level_img, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-    # cv2.imwrite('images/next_level.png', level_img)
-    level_text = pytesseract.image_to_string('images/next_level.png').upper()
-    print(level_text)
-    if 'LEVEL' in level_text:
-        print ('\n\n' + level_text)
-        click_level()
-        sleep(1)
-    elif 'COLLECT' in level_text:
-        print('\n\n' + 'world end')
-        pyautogui.press('esc')
-        sleep(3)
-        pyautogui.press('esc')
-        sleep(1)
-        click_world()
-        sleep(1)
-    else:
+        if 'LEVEL' in level_text:
+            print ('\n\n' + level_text)
+            click_level()
+            sleep(1)
+        elif 'COLLECT' in level_text:
+            print('\n\n' + 'world end')
+            pyautogui.press('esc')
+            sleep(3)
+            pyautogui.press('esc')
+            sleep(1)
+            click_world()
+            sleep(1)
+        seconds += 1
+        
+    if seconds > 19
         click_shuffle()
 
 
