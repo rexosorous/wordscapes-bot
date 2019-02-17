@@ -58,6 +58,9 @@ def click_shuffle():
 def click_level():
     pyautogui.click(250, 725)
 
+def click_back():
+    pyautogui.click(40, 60)
+
 def click_world():
     pyautogui.click(295, 290)
 
@@ -150,7 +153,7 @@ def start_level():
                 x[0] = 'E'
             if x[0] == 'EF':
                 x[0] = 'E'
-            if len(x[0]) != 1 or x[0].isalpha():
+            if len(x[0]) != 1 or not x[0].isalpha():
                 sentinel = False
         print('DETECTED LETTERS: ' + ', '.join([x[0] for x in char_pos]))
 
@@ -210,9 +213,9 @@ def next_level():
             break
         elif 'COLLECT' in level_text:
             print('\n\n' + 'world end')
-            pyautogui.press('esc')
+            click_level()
             sleep(3)
-            pyautogui.press('esc')
+            click_back()
             sleep(1)
             click_world()
             sleep(1)
