@@ -9,6 +9,12 @@ import pytesseract
 pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files (x86)/Tesseract-OCR/tesseract.exe'
 
 
+
+class OCR_Error(Exception):
+    pass
+
+
+
 # middle
 COL1 = 175
 COL2 = 285
@@ -83,9 +89,16 @@ def start_level():
     [pytesseract.image_to_string(pos5, config='--psm 10'), 5],
     [pytesseract.image_to_string(pos6, config='--psm 10'), 6]]
 
+
+    for char in [x[0] for x in char_pos]:
+        if len(char) > 1:
+            raise OCR_Error
+
     for x in char_pos:
         if x[0] == '|':
             x[0] = 'I'
+        if len(x[0]) > 1:
+            raise OCR_Error
 
     bruteforce(char_pos)
 
@@ -98,7 +111,6 @@ def bruteforce(char_pos: dict):
     sixes = list(map(''.join, permutations([char[0] for char in char_pos], 6)))
 
     allcombos = [word for word in threes + fours + fives + sixes if word in dictionary]
-
 
     for combo in allcombos:
         dupes = [k for k,v in Counter(combo).items() if v>1]
@@ -114,6 +126,7 @@ def bruteforce(char_pos: dict):
                 for ele in char_pos:
                     if ele[0] == char:
                         move(ele[1])
+                        break
         pyautogui.mouseUp()
 
 
