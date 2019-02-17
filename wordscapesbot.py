@@ -51,6 +51,19 @@ def move5():
 def move6():
     pyautogui.mouseDown(x=COL1, y=ROW2)
 
+def click_shuffle():
+    pyautogui.click(53, 514)
+
+def click_level():
+    pyautogui.click(250, 725)
+
+def click_world():
+    pyautogui.click(295, 290)
+
+
+def check_red() -> int:
+    return pyautogui.pixel(80, 867)[0]
+
 
 def move(pos: int):
     do = {1: move1,
@@ -75,7 +88,8 @@ with open('words_dictionary.json') as file:
 
 
 
-def start_level():
+
+def screenshot():
     pyautogui.screenshot('images/pos1.png', region=(COL2 - int(WIDTH / 2), ROW1 - int(HEIGHT / 2), WIDTH, HEIGHT))
     pyautogui.screenshot('images/pos2.png', region=(COL3 - int(WIDTH / 2), ROW2 - int(HEIGHT / 2), WIDTH, HEIGHT))
     pyautogui.screenshot('images/pos3.png', region=(COL3 - int(WIDTH / 2), ROW3 - int(HEIGHT / 2), WIDTH, HEIGHT))
@@ -90,6 +104,20 @@ def start_level():
     pos5 = cv2.cvtColor(cv2.imread('images/pos5.png'), cv2.COLOR_BGR2GRAY)
     pos6 = cv2.cvtColor(cv2.imread('images/pos6.png'), cv2.COLOR_BGR2GRAY)
 
+    pos1 = cv2.threshold(pos1, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    pos2 = cv2.threshold(pos2, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    pos3 = cv2.threshold(pos3, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    pos4 = cv2.threshold(pos4, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    pos5 = cv2.threshold(pos5, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    pos6 = cv2.threshold(pos6, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+
+    pos1 = cv2.medianBlur(pos1, 3)
+    pos2 = cv2.medianBlur(pos2, 3)
+    pos3 = cv2.medianBlur(pos3, 3)
+    pos4 = cv2.medianBlur(pos4, 3)
+    pos5 = cv2.medianBlur(pos5, 3)
+    pos6 = cv2.medianBlur(pos6, 3)
+
     cv2.imwrite('images/pos1.png', pos1)
     cv2.imwrite('images/pos2.png', pos2)
     cv2.imwrite('images/pos3.png', pos3)
@@ -97,23 +125,29 @@ def start_level():
     cv2.imwrite('images/pos5.png', pos5)
     cv2.imwrite('images/pos6.png', pos6)
 
-    char_pos = [[pytesseract.image_to_string(pos1, config='--psm 10'), 1],
-    [pytesseract.image_to_string(pos2, config='--psm 10'), 2],
-    [pytesseract.image_to_string(pos3, config='--psm 10'), 3],
-    [pytesseract.image_to_string(pos4, config='--psm 10'), 4],
-    [pytesseract.image_to_string(pos5, config='--psm 10'), 5],
-    [pytesseract.image_to_string(pos6, config='--psm 10'), 6]]
 
 
-    print([x[0] for x in char_pos])
+def start_level():
+    sentinel = False
+    while not sentinel:
+        screenshot()
 
-    for x in char_pos:
-        x[0] = x[0].upper()
-        if x[0] == '|':
-            x[0] = 'I'
-        if len(x[0]) > 1:
-            raise OCR_Error
+        char_pos = [[pytesseract.image_to_string('images/pos1.png', config='--psm 10'), 1],
+            [pytesseract.image_to_string('images/pos2.png', config='--psm 10'), 2],
+            [pytesseract.image_to_string('images/pos3.png', config='--psm 10'), 3],
+            [pytesseract.image_to_string('images/pos4.png', config='--psm 10'), 4],
+            [pytesseract.image_to_string('images/pos5.png', config='--psm 10'), 5],
+            [pytesseract.image_to_string('images/pos6.png', config='--psm 10'), 6]]
 
+        for x in char_pos:
+            x[0] = x[0].upper()
+            if x[0] == '|':
+                x[0] = 'I'
+            if len(x[0]) == 1:
+                sentinel = True
+            else:
+                click_shuffle
+        print([x[0] for x in char_pos])
 
     bruteforce(char_pos)
 
@@ -125,7 +159,7 @@ def bruteforce(char_pos: dict):
     fives = list(map(''.join, permutations([char[0] for char in char_pos], 5)))
     sixes = list(map(''.join, permutations([char[0] for char in char_pos], 6)))
 
-    if pyautogui.pixel(80, 867)[0] > 245 and pyautogui.pixel(80, 867)[0] < 258:
+    if check_red() > 245 and check_red() < 258:
         allcombos = set([word for word in fours + fives + sixes if word in dictionary])
     else:
         allcombos = set([word for word in threes + fours + fives + sixes if word in dictionary])
@@ -150,15 +184,17 @@ def bruteforce(char_pos: dict):
 
 
 def next_level():
-    level_text = ''
-    while 'LEVEL' not in level_text and 'COLLECT' not in level_text:
-        pyautogui.screenshot('images/next_level.png', region=(200, 680, 180, 40))
-        level_img = cv2.cvtColor(cv2.imread('images/next_level.png'), cv2.COLOR_BGR2GRAY)
-        cv2.imwrite('images/next_level.png', level_img)
-        level_text = pytesseract.image_to_string(level_img).upper()
+    sleep(5)
+
+    pyautogui.screenshot('images/next_level.png', region=(200, 719, 180, 40))
+    level_img = cv2.cvtColor(cv2.imread('images/next_level.png'), cv2.COLOR_BGR2GRAY)
+    level_img = cv2.threshold(level_img, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    cv2.imwrite('images/next_level.png', level_img)
+    level_text = pytesseract.image_to_string(level_img).upper()
+
     if 'LEVEL' in level_text:
         print (level_text)
-        pyautogui.click(250, 725)
+        click_level()
         sleep(1)
     elif 'COLLECT' in level_text:
         print('world end')
@@ -166,8 +202,10 @@ def next_level():
         sleep(3)
         pyautogui.press('esc')
         sleep(1)
-        pyautogui.click(295, 290)
+        click_world()
         sleep(1)
+    else:
+        click_shuffle()
 
 
 
