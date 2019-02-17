@@ -126,9 +126,9 @@ def bruteforce(char_pos: dict):
     sixes = list(map(''.join, permutations([char[0] for char in char_pos], 6)))
 
     if pyautogui.pixel(80, 867)[0] > 245 and pyautogui.pixel(80, 867)[0] < 258:
-        allcombos = [word for word in fours + fives + sixes if word in dictionary]
+        allcombos = set([word for word in fours + fives + sixes if word in dictionary])
     else:
-        allcombos = [word for word in threes + fours + fives + sixes if word in dictionary]
+        allcombos = set([word for word in threes + fours + fives + sixes if word in dictionary])
 
     for combo in allcombos:
         dupes = [k for k,v in Counter(combo).items() if v>1]
@@ -152,7 +152,7 @@ def bruteforce(char_pos: dict):
 def next_level():
     level_text = ''
     while 'LEVEL' not in level_text and 'COLLECT' not in level_text:
-        pyautogui.screenshot('images/next_level.png', region=(200, 700, 150, 50))
+        pyautogui.screenshot('images/next_level.png', region=(200, 680, 180, 40))
         level_img = cv2.cvtColor(cv2.imread('images/next_level.png'), cv2.COLOR_BGR2GRAY)
         cv2.imwrite('images/next_level.png', level_img)
         level_text = pytesseract.image_to_string(level_img).upper()
@@ -161,6 +161,7 @@ def next_level():
         pyautogui.click(250, 725)
         sleep(1)
     elif 'COLLECT' in level_text:
+        print('world end')
         pyautogui.press('esc')
         sleep(3)
         pyautogui.press('esc')
