@@ -144,7 +144,13 @@ def start_level():
             x[0] = x[0].upper()
             if x[0] == '|':
                 x[0] = 'I'
-            if len(x[0]) != 1:
+            if x[0] == 'XX':
+                x[0] = 'X'
+            if x[0] == 'FE':
+                x[0] = 'E'
+            if x[0] == 'EF':
+                x[0] = 'E'
+            if len(x[0]) != 1 or x[0].isalpha():
                 sentinel = False
         print('DETECTED LETTERS: ' + ', '.join([x[0] for x in char_pos]))
 
