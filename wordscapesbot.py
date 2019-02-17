@@ -18,19 +18,19 @@ class OCR_Error(Exception):
 
 
 # middle
-COL1 = 176
-COL2 = 284
-COL3 = 393
+COL1 = 601
+COL2 = 684
+COL3 = 767
 
-ROW1 = 584
-ROW2 = 647
-ROW3 = 772
-ROW4 = 836
+ROW1 = 440
+ROW2 = 489
+ROW3 = 585
+ROW4 = 633
 
 
 # image sizes
-WIDTH = 80
-HEIGHT = 66
+WIDTH = 60
+HEIGHT = 50
 
 
 def move1():
@@ -52,21 +52,21 @@ def move6():
     pyautogui.mouseDown(x=COL1, y=ROW2)
 
 def click_shuffle():
-    pyautogui.click(53, 514)
+    pyautogui.click(507, 387)
     print('SHUFFLING')
 
 def click_level():
-    pyautogui.click(250, 725)
+    pyautogui.click(675, 550)
 
 def click_back():
-    pyautogui.click(40, 60)
+    pyautogui.click(497, 28)
 
 def click_world():
-    pyautogui.click(295, 290)
+    pyautogui.click(675, 367)
 
 
 def check_red() -> int:
-    return pyautogui.pixel(80, 867)[0]
+    return pyautogui.pixel(531, 660)[0]
 
 
 def move(pos: int):
@@ -200,7 +200,7 @@ def next_level():
     seconds = 0
     while seconds < 20:
         sleep(1)
-        pyautogui.screenshot('images/next_level.png', region=(200, 719, 180, 40))
+        pyautogui.screenshot('images/next_level.png', region=(640, 540, 100, 25))
         # level_img = cv2.cvtColor(cv2.imread('images/next_level.png'), cv2.COLOR_BGR2GRAY)
         # level_img = cv2.threshold(level_img, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
         # cv2.imwrite('images/next_level.png', level_img)
@@ -225,6 +225,7 @@ def next_level():
     if seconds > 19:
         print('\n\n' + 'RESTARTING LEVEL')
         click_shuffle()
+        sleep(1.5)
 
 
 
@@ -242,12 +243,18 @@ def listen():
         listener.join()
 
 
-listen_thread = threading.Thread(target=listen)
-listen_thread.daemon = True
-listen_thread.start()
+stop_thread = threading.Thread(target=listen)
+stop_thread.daemon = True
+stop_thread.start()
 
 
+def main(key):
+    if key == Key.enter:
+        while True:
+            start_level()
+            next_level()
 
-while True:
-    start_level()
-    next_level()
+
+start_thread = threading.Thread(target=main)
+start_thread.daemon = True
+start_thread.start()
