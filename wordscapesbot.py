@@ -128,8 +128,8 @@ def screenshot():
 
 
 def start_level():
-    sentinel = False
-    while not sentinel:
+    while True:
+        sentinel = True
         screenshot()
 
         char_pos = [[pytesseract.image_to_string('images/pos1.png', config='--psm 10'), 1],
@@ -143,11 +143,14 @@ def start_level():
             x[0] = x[0].upper()
             if x[0] == '|':
                 x[0] = 'I'
-            if len(x[0]) == 1:
-                sentinel = True
-            else:
-                click_shuffle
+            if len(x[0]) != 1:
+                sentinel = False
         print([x[0] for x in char_pos])
+
+        if sentinel:
+            break
+        click_shuffle()
+        sleep(1.5)
 
     bruteforce(char_pos)
 
@@ -184,14 +187,14 @@ def bruteforce(char_pos: dict):
 
 
 def next_level():
-    sleep(5)
+    sleep(12)
 
     pyautogui.screenshot('images/next_level.png', region=(200, 719, 180, 40))
-    level_img = cv2.cvtColor(cv2.imread('images/next_level.png'), cv2.COLOR_BGR2GRAY)
-    level_img = cv2.threshold(level_img, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-    cv2.imwrite('images/next_level.png', level_img)
-    level_text = pytesseract.image_to_string(level_img).upper()
-
+    # level_img = cv2.cvtColor(cv2.imread('images/next_level.png'), cv2.COLOR_BGR2GRAY)
+    # level_img = cv2.threshold(level_img, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    # cv2.imwrite('images/next_level.png', level_img)
+    level_text = pytesseract.image_to_string('images/next_level.png').upper()
+    print(level_text)
     if 'LEVEL' in level_text:
         print (level_text)
         click_level()
