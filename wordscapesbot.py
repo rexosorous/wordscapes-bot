@@ -1,5 +1,8 @@
 import pyautogui as mouse
 from itertools import permutations
+from pynput.keyboard import Key, Listener
+import threading
+import os
 
 COL1 = 605
 COL2 = 680
@@ -53,5 +56,23 @@ def bruteforce():
         for pos in combo:
             move(pos)
         mouse.mouseUp()
+
+
+
+
+def stop(key):
+    if key == Key.esc:
+        print('stopped')
+        os._exit(1)
+
+
+def listen():
+    with Listener(on_press=stop) as listener:
+        listener.join()
+
+
+listen_therad = threading.Thread(target=listen)
+listen_thread.daemon = True
+listen_thread.start()
 
 bruteforce()
