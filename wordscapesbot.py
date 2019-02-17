@@ -189,7 +189,7 @@ def bruteforce(char_pos: dict):
 
 def next_level():
     seconds = 0
-    while seconds < 20
+    while seconds < 20:
         sleep(1)
         pyautogui.screenshot('images/next_level.png', region=(200, 719, 180, 40))
         # level_img = cv2.cvtColor(cv2.imread('images/next_level.png'), cv2.COLOR_BGR2GRAY)
@@ -201,6 +201,7 @@ def next_level():
             print ('\n\n' + level_text)
             click_level()
             sleep(1)
+            break
         elif 'COLLECT' in level_text:
             print('\n\n' + 'world end')
             pyautogui.press('esc')
@@ -209,9 +210,11 @@ def next_level():
             sleep(1)
             click_world()
             sleep(1)
+            break
         seconds += 1
-        
-    if seconds > 19
+
+    if seconds > 19:
+        print('\n\n' + 'RESTARTING LEVEL')
         click_shuffle()
 
 
