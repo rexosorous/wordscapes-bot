@@ -29,7 +29,7 @@ ROW4 = 836
 
 
 # image sizes
-WIDTH = 70
+WIDTH = 80
 HEIGHT = 66
 
 
@@ -53,6 +53,7 @@ def move6():
 
 def click_shuffle():
     pyautogui.click(53, 514)
+    print('SHUFFLING')
 
 def click_level():
     pyautogui.click(250, 725)
@@ -145,7 +146,7 @@ def start_level():
                 x[0] = 'I'
             if len(x[0]) != 1:
                 sentinel = False
-        print([x[0] for x in char_pos])
+        print('DETECTED LETTERS: ' + ', '.join([x[0] for x in char_pos]))
 
         if sentinel:
             break
@@ -187,7 +188,7 @@ def bruteforce(char_pos: dict):
 
 
 def next_level():
-    sleep(12)
+    sleep(20)
 
     pyautogui.screenshot('images/next_level.png', region=(200, 719, 180, 40))
     # level_img = cv2.cvtColor(cv2.imread('images/next_level.png'), cv2.COLOR_BGR2GRAY)
@@ -196,11 +197,11 @@ def next_level():
     level_text = pytesseract.image_to_string('images/next_level.png').upper()
     print(level_text)
     if 'LEVEL' in level_text:
-        print (level_text)
+        print ('\n\n' + level_text)
         click_level()
         sleep(1)
     elif 'COLLECT' in level_text:
-        print('world end')
+        print('\n\n' + 'world end')
         pyautogui.press('esc')
         sleep(3)
         pyautogui.press('esc')
